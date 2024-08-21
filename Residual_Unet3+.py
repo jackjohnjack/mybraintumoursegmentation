@@ -245,10 +245,7 @@ class NewUNet(Module):
         neck_d4 = self.upsample2(neck)  #512  8*8  ->  512  16*16
         neck_d4 = self.Conv3d_neck_d4(neck_d4) # 512  16*16  ->  32 16*16 
 
-        d4_skip = torch.cat((d4_skip, e1_d4, e2_d4, e3_d4 ), dim=1)  #  32*5 16*16         
-         
-        d4_skip = self.attention4(neck_d4, d4_skip) #32 16*16  -> 32 16*16 
-        x = torch.cat((neck_d4, d4_skip), dim=1)  #  32*5 16*16 
+        x = torch.cat((neck_d4, d4_skip, e1_d4, e2_d4, e3_d4), dim=1)  #  32*5 16*16 
         decoder_output4 = self.decblock4(x)    # 32*5 16*16  -> 32*5 16*16 
         
         e1_d3 = self.pool4(decskip1)  #32 128*128  -> 32 32*32
@@ -265,10 +262,7 @@ class NewUNet(Module):
         d4_d3 = self.upsample2(decoder_output4)  #32*5 16*16  -> 32*5 32*32
         d4_d3 = self.Conv3d_d4_d3(d4_d3)  #32*5 32*32  ->  32 32*32
         
-        d3_skip = torch.cat((d3_skip, e1_d3, e2_d3, neck_d3), dim=1)  ##  32*5 32*32 
-        
-        d3_skip = self.attention3(d4_d3, d3_skip)  #32  32*32  -> 32  32*32
-        x = torch.cat((d4_d3, d3_skip), dim=1)  ##  32*5 32*32 
+        x = torch.cat((d4_d3, d3_skip, e1_d3, e2_d3, neck_d3), dim=1)  ##  32*5 32*32 
         decoder_output3 = self.decblock3(x)   # 32*5 32*32  -> 32*5 32*32 
         
         e1_d2 = self.pool(decskip1)  #32 128*128   ->   32 64*64
@@ -285,10 +279,7 @@ class NewUNet(Module):
         neck_d2 = self.upsample8(neck)   #512  8*8  -> 512  64*64
         neck_d2 = self.Conv3d_neck_d2(neck_d2)  #512  64*64  ->  32  64*64
         
-        d2_skip = torch.cat((d2_skip, e1_d2, d4_d2, neck_d2), dim=1)  #32*5  64*64
-        
-        d2_skip = self.attention2(d3_d2, d2_skip)  #32  64*64 
-        x = torch.cat((d3_d2, d2_skip), dim=1)  #32*5  64*64
+        x = torch.cat((d3_d2, d2_skip, e1_d2, d4_d2, neck_d2), dim=1)  #32*5  64*64
         decoder_output2 = self.decblock2(x)    #32*5  64*64  ->  32*5  64*64  
         
         d1_skip = self.Conv3d_e1_d1(decskip1) #32 128*128  -> 32 128*128
@@ -305,10 +296,7 @@ class NewUNet(Module):
         neck_d1 = self.upsample16(neck)   #512 8*8   ->  512 128*128
         neck_d1 = self.Conv3d_neck_d1(neck_d1)  #512 128*128  ->  32*5 128*128
         
-        d1_skip = torch.cat((d1_skip, d3_d1, d4_d1, neck_d1), dim=1)  #32*5 128*128
-        
-        d1_skip = self.attention1(d2_d1, d1_skip)  #32  128*128
-        x = torch.cat((d2_d1, d1_skip), dim=1)  #32*5 128*128
+        x = torch.cat((d2_d1, d1_skip, d3_d1, d4_d1, neck_d1), dim=1)  #32*5 128*128
         decoder_output1 = self.decblock1(x)     #32*5 128*128    ->  32*5 128*128  
      
         output = self.convtranspose3doutput(decoder_output1) #32*5 128*128  -> 16 256*256       
