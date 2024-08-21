@@ -589,7 +589,7 @@ for i in range(bias_index + 1,num_epochs+bias_index + 1):
        
     
 print("Training completed")
-model_path="./3ClassNet3-res-att-epochs"
+model_path="./3ClassNet3-res-epochs"
 model_path_pth = model_path + ".pth"
 torch.save(UNET_Model,model_path)
 torch.save({
@@ -597,7 +597,7 @@ torch.save({
     'optimizer_state_dict': optimizer_function.state_dict(),
     }, model_path_pth)
         
-recode_path="./3ClassNet3-res-att-result_recode"
+recode_path="./3ClassNet3-res-result_recode"
 with open(recode_path, 'w') as file:
     for label in result_recode:
         file.write(f"{label}\n")
