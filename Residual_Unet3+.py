@@ -12,40 +12,6 @@ import numpy as np
 import nibabel as nib
 device = "cuda:0"
 print("device is:",device)
-
-
-
-class AttentionBlock(Module):
-    def __init__(self, decoder_input_channels, encode_input_channels, decoder_output_channels):
-        super(AttentionBlock, self).__init__()
-        self.decoder_g = Sequential(
-            Conv3d(decoder_input_channels, decoder_output_channels, kernel_size=1, stride=1, padding=0, bias=True),
-            GroupNorm(num_groups=8, num_channels=decoder_output_channels)
-        )
-        
-        self.encoder_x = Sequential(
-            Conv3d(encode_input_channels, decoder_output_channels, kernel_size=1, stride=1, padding=0, bias=True),
-             GroupNorm(num_groups=8, num_channels=decoder_output_channels)
-        )
-        
-        self.psi = Sequential(
-            Conv3d(decoder_output_channels, 1, kernel_size=1, stride=1, padding=0, bias=True),
-            BatchNorm3d(1),
-            Sigmoid()
-        )
-        
-        self.relu = ReLU(inplace=True)
-        
-        self.upsampling = Upsample(scale_factor=2, mode='trilinear')
-
-    def forward(self, decoder_input, encode_input):
-        dec_g = self.decoder_g(decoder_input)
-        enc_x = self.encoder_x(encode_input)
-        psi = self.relu(dec_g + enc_x)
-        psi = self.psi(psi)
-        #psi = self.upsampling(psi)
-        return encode_input * psi
-        
         
 class FirstBlock(Module):
     def __init__(self, input_channels, output_channels):
@@ -170,12 +136,7 @@ class NewUNet(Module):
         self.convtranspose3d2 = ConvTranspose3d(decoding_channels[2], decoding_channels[3], kernel_size=2, stride=2)
         self.convtranspose3d1 = ConvTranspose3d(decoding_channels[3], decoding_channels[4], kernel_size=2, stride=2)
         self.convtranspose3doutput = ConvTranspose3d(decoding_channels[4]*5, decoding_channels[5], kernel_size=(2,2,1), stride=(2,2,1))
-        
-        self.attention4 = AttentionBlock(decoding_channels[4],decoding_channels[4]*4,decoding_channels[4])
-        self.attention3 = AttentionBlock(decoding_channels[4],decoding_channels[4]*4,decoding_channels[4])
-        self.attention2 = AttentionBlock(decoding_channels[4],decoding_channels[4]*4,decoding_channels[4])
-        self.attention1 = AttentionBlock(decoding_channels[4],decoding_channels[4]*4,decoding_channels[4])
-        
+       
         self.decblock4 = NewBlock(decoding_channels[4]*5, decoding_channels[4]*5)
         self.decblock3 = NewBlock(decoding_channels[4]*5, decoding_channels[4]*5)
         self.decblock2 = NewBlock(decoding_channels[4]*5, decoding_channels[4]*5)
