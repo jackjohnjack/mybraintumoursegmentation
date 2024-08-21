@@ -64,13 +64,11 @@ class FirstBlock(Module):
         self.relu = ReLU(inplace=True)
         
     def forward(self, x):
-        resskip = self.conv3dskip(x)
         x = self.conv3d1(x)
         x = self.batchnorm3d1(x)
         x = self.relu(x)        
         
         x = self.conv3d2(x)
-        x = x + resskip        
         return x        
         
         
@@ -93,7 +91,6 @@ class NewBlock(Module):
         self.relu = ReLU(inplace=True)
         
     def forward(self, x):
-        resskip = self.conv3dskip(x)
         x = self.batchnorm3d1(x)
         x = self.relu(x)  
         x = self.conv3d1(x)
@@ -101,7 +98,7 @@ class NewBlock(Module):
         x = self.batchnorm3d2(x)
         x = self.relu(x)
         x = self.conv3d2(x)        
-        x = x + resskip
+        
         
         return x 
 
@@ -122,7 +119,6 @@ class FinalBlock(Module):
         self.relu = ReLU(inplace=True)
         
     def forward(self, x):
-        resskip = self.conv3dskip(x)
         x = self.batchnorm3d1(x)
         x = self.relu(x)  
         x = self.conv3d1(x)
@@ -130,7 +126,7 @@ class FinalBlock(Module):
         x = self.batchnorm3d2(x)
         x = self.relu(x)
         x = self.conv3d2(x)        
-        x = x + resskip
+        
         
         return x 
 
